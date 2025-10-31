@@ -1,4 +1,4 @@
-# Project_Name_Here
+# CineLocal
 
 ## Our Group
 - class section (2:20pm)
