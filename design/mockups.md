@@ -1,20 +1,16 @@
 # Project_Name_Here
 
 ## Our Group
-- 
-- 
-- 
--
-
-- class section (8am, 11:10am or 12:20pm)
-- group name 
+- class section (2:20pm)
+- group name: CineLocal
+  
 
 ---
 ## Splash page
 
 Upload image to `/images/` and link it below:
 
-`![Group Photo](../images/splash-mockup.jpg)`
+![Group Photo](../images/Splash_Page.jpg)
 
 
 ---
@@ -23,7 +19,7 @@ Upload image to `/images/` and link it below:
 
 Upload image to `/images/` and link it below:
 
-`![Unauthenticated View](../images/non-authenticated.jpg)`
+![Unauthenticated View](../images/Non_Auth_View.jpg)
 
 ---
 
@@ -31,7 +27,7 @@ Upload image to `/images/` and link it below:
 
 Upload image to `/images/` and link it below:
 
-`![Authenticated View](../images/authenticated.jpg)`
+![Authenticated View](../images/Auth_View.jpg)
 
 
 ---
@@ -40,6 +36,6 @@ Upload image to `/images/` and link it below:
 
 Upload image to `/images/` and link it below:
 
-`![Form View](../images/form-view.jpg)`
+![Form View](../images/Add_Edit_Form.jpg)
 
 ---
