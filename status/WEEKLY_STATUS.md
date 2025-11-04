@@ -17,15 +17,15 @@ Upload image to `/images/` and link it below:
 ## Progress Summary - **Week #1:**  Monday, Oct 27 -  Sunday, Nov 2
 
 ** What we completed this week:**  
-- 
+- We completed the UI mock up of our website.
 -  
 
 ** Issues / blockers encountered:**  
--  
+-  Figma was a little difficult to use at first but we figured it out. 
 -  
 
 ** Goals for next week:**  
--  
+-  Create a functional UI using the figma mock up. 
 -  
 
 ---
