@@ -33,15 +33,16 @@ Upload image to `/images/` and link it below:
 ## Progress Summary - **Week #2:**  Monday, Nov 3 -  Sunday, Nov 9
 
 ** What we completed this week:**  
-- 
--  
+- Dev: Helped with the UI and creating the api call to tmdb for movie data.
+- Pavan: Created the browse and the splash page UI.
+- Usman: Helped with creation of the UI of different pages as well as the api.
 
 ** Issues / blockers encountered:**  
--  
+-  We did not have the same file structure as mentioned in the readme but it is fixed now.
 -  
 
 ** Goals for next week:**  
--  
+-  Fully complete the UI with the sigup and login pages, the review page and the search functionality for the movies.
 -  
 
 ---
