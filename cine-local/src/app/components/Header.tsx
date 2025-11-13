@@ -1,12 +1,27 @@
-import { Link } from "react-router-dom";
-import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 
 type HeaderProps = {
   onSearch: (query: string) => void;
 };
 
+type User = {
+  name: string;
+  email: string;
+  password: string;
+} | null;
+
 export default function Header({ onSearch }: HeaderProps) {
   const [query, setQuery] = useState("");
+  const [user, setUser] = useState<User>(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("cineLocalUser");
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -14,15 +29,20 @@ export default function Header({ onSearch }: HeaderProps) {
     onSearch(value);
   };
 
+  function handleLogout() {
+    setUser(null);
+    navigate("/login");
+  }
+
   return (
     <header
       style={{
         backgroundColor: "#111827",
         borderBottom: "1px solid #1f2937",
-        padding: "3rem 2rem 4rem", 
+        padding: "3rem 2rem 4rem",
       }}
     >
-      
+      {/* TOP RIGHT BUTTONS */}
       <div
         style={{
           maxWidth: "80rem",
@@ -34,40 +54,73 @@ export default function Header({ onSearch }: HeaderProps) {
         }}
       >
         <div style={{ display: "flex", gap: "1.5rem", alignItems: "center" }}>
-          <Link to="/login" style={{ textDecoration: "none" }}>
-            <button
-              style={{
-                color: "white",
-                background: "none",
-                border: "none",
-                fontWeight: 600,
-                cursor: "pointer",
-                fontSize: "1rem",
-              }}
-            >
-              LOG IN
-            </button>
-          </Link>
-          <Link to="/signup" style={{ textDecoration: "none" }}>
-            <button
-              style={{
-                backgroundColor: "#DC2626",
-                color: "white",
-                padding: "0.5rem 1.5rem",
-                borderRadius: "0.375rem",
-                fontWeight: 600,
-                border: "none",
-                cursor: "pointer",
-                fontSize: "1rem",
-              }}
-            >
-              SIGN UP
-            </button>
-          </Link>
+          {user ? (
+            <>
+              <span
+                style={{
+                  color: "white",
+                  fontSize: "1rem",
+                  fontWeight: 500,
+                }}
+              >
+                Welcome, {user.name}
+              </span>
+
+              <button
+                onClick={handleLogout}
+                style={{
+                  backgroundColor: "#DC2626",
+                  color: "white",
+                  padding: "0.4rem 1rem",
+                  borderRadius: "0.375rem",
+                  fontWeight: 600,
+                  border: "none",
+                  cursor: "pointer",
+                  fontSize: "1rem",
+                }}
+              >
+                Logout
+              </button>
+            </>
+          ) : (
+            <>
+              <Link to="/login" style={{ textDecoration: "none" }}>
+                <button
+                  style={{
+                    color: "white",
+                    background: "none",
+                    border: "none",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                    fontSize: "1rem",
+                  }}
+                >
+                  LOG IN
+                </button>
+              </Link>
+
+              <Link to="/signup" style={{ textDecoration: "none" }}>
+                <button
+                  style={{
+                    backgroundColor: "#DC2626",
+                    color: "white",
+                    padding: "0.5rem 1.5rem",
+                    borderRadius: "0.375rem",
+                    fontWeight: 600,
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: "1rem",
+                  }}
+                >
+                  SIGN UP
+                </button>
+              </Link>
+            </>
+          )}
         </div>
       </div>
 
-      
+      {/* TITLE */}
       <div
         style={{
           display: "flex",
@@ -90,7 +143,7 @@ export default function Header({ onSearch }: HeaderProps) {
         </Link>
       </div>
 
-      
+      {/* SEARCH BAR */}
       <div
         style={{
           maxWidth: "64rem",
@@ -118,3 +171,9 @@ export default function Header({ onSearch }: HeaderProps) {
     </header>
   );
 }
+
+
+
+
+
+
