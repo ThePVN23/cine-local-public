@@ -4,7 +4,9 @@ import { Link } from "react-router-dom";
 export default function SignupPage() {
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#000" }}>
-      <Header />
+      <Header onSearch={function (query: string): void {
+        throw new Error("Function not implemented.");
+      } } />
       <div style={{ maxWidth: "28rem", margin: "0 auto", padding: "5rem 2rem" }}>
         <div style={{ backgroundColor: "#111827", borderRadius: "0.5rem", padding: "2rem" }}>
           <h2 style={{ color: "white", fontSize: "1.875rem", fontWeight: "bold", marginBottom: "1.5rem", textAlign: "center" }}>

@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import Header from "../components/Header";
 import MovieCard from "../components/MovieCard";
-import SearchBar from "../components/SearchBar";
+
 import type { Movie } from "../models/Movie";
 import { fetchPopularMovies } from "../api/tmdb";
 
@@ -47,9 +47,10 @@ export default function BrowsePage() {
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#000" }}>
-      <Header />
-      <SearchBar onSearch={handleSearch} />
-
+      <Header onSearch={function (query: string): void {
+        throw new Error("Function not implemented.");
+      } } />
+      
       <div style={{ maxWidth: "80rem", margin: "0 auto", padding: "3rem 2rem" }}>
         <h2
           style={{

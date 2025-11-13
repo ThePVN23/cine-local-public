@@ -1,0 +1,356 @@
+import React, { useEffect, useMemo, useState } from "react";
+import Header from "../components/Header";
+import { fetchMovieDetail } from "../api/tmdb";
+import { useParams } from "react-router-dom";
+import { Movie } from "../models/Movie";
+
+
+
+type Review = {
+  id: string;
+  rating: number; 
+  text: string;
+  createdAt: string; 
+};
+
+
+const currentUserId = "me-123";
+
+const INITIAL_REVIEWS: Review[] = [
+  { id: "r1", rating: 5, text: "Amazing movie!! Great screenplay.", createdAt: new Date().toISOString() },
+  { id: "r2", rating: 4, text: "Creepy atmosphere and strong performances.", createdAt: new Date(Date.now() - 86400000).toISOString() },
+];
+
+
+function Star({ filled = false, size = 18 }: { filled?: boolean; size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill={filled ? "currentColor" : "none"}
+      className="text-yellow-400"
+      stroke="currentColor"
+      strokeWidth="2"
+    >
+      <path
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.98a1 1 0 00.95.69h4.187c.969 0 1.371 1.24.588 1.81l-3.39 2.463a1 1 0 00-.364 1.118l1.286 3.98c.3.921-.755 1.688-1.54 1.118l-3.39-2.462a1 1 0 00-1.176 0l-3.39 2.462c-.785.57-1.84-.197-1.54-1.118l1.287-3.98a1 1 0 00-.365-1.118L2.938 9.407c-.783-.57-.38-1.81.588-1.81h4.187a1 1 0 00.95-.69l1.386-3.98z"
+      />
+    </svg>
+  );
+}
+
+function Stars({ value }: { value: number }) {
+  return (
+    <div className="flex items-center gap-1" aria-label={`${value} star rating`}>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <Star key={i} filled={i < value} />
+      ))}
+    </div>
+  );
+}
+
+
+function StarsInteractive({
+  value,
+  onChange,
+}: {
+  value: number;
+  onChange: (val: number) => void;
+}) {
+  const [hover, setHover] = useState<number | null>(null);
+  const shown = hover ?? value;
+
+  return (
+    <div className="flex items-center gap-1">
+      {Array.from({ length: 5 }).map((_, i) => {
+        const idx = i + 1;
+        const isFilled = idx <= shown;
+        return (
+          <button
+            key={i}
+            type="button"
+            className="p-0.5"
+            onMouseEnter={() => setHover(idx)}
+            onMouseLeave={() => setHover(null)}
+            onClick={() => onChange(idx)}
+            aria-label={`Set rating ${idx}`}
+            title={`${idx} star${idx > 1 ? "s" : ""}`}
+          >
+            <Star filled={isFilled} size={22} />
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+function formatDate(iso: string) {
+  const d = new Date(iso);
+  return d.toLocaleDateString(undefined, { month: "short", day: "2-digit", year: "numeric" });
+}
+
+
+function Modal({
+  open,
+  onClose,
+  title,
+  children,
+  footer,
+}: {
+  open: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+  footer?: React.ReactNode;
+}) {
+  if (!open) return null;
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center bg-black/60 p-4" role="dialog" aria-modal>
+      <div className="w-full max-w-lg rounded-2xl bg-zinc-900 text-zinc-100 shadow-2xl ring-1 ring-white/10">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-white/10">
+          <h3 className="text-lg font-semibold">{title}</h3>
+          <button
+            className="rounded-full p-1 text-zinc-400 hover:text-white hover:bg-white/10"
+            onClick={onClose}
+            aria-label="Close"
+          >
+            ✕
+          </button>
+        </div>
+        <div className="px-6 py-5">{children}</div>
+        {footer && <div className="px-6 py-4 border-t border-white/10">{footer}</div>}
+      </div>
+    </div>
+  );
+}
+
+
+function ReviewForm({
+  defaultValue,
+  onSubmit,
+  submittingLabel = "Save",
+}: {
+  defaultValue?: Partial<Review>;
+  onSubmit: (v: { rating: number; text: string }) => void;
+  submittingLabel?: string;
+}) {
+  const [rating, setRating] = useState<number>(defaultValue?.rating ?? 5);
+  const [text, setText] = useState<string>(defaultValue?.text ?? "");
+
+  return (
+    <form
+      className="grid gap-4"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (!text.trim()) return;
+        onSubmit({ rating, text: text.trim() });
+      }}
+    >
+      <div className="grid gap-2">
+        <label className="text-sm text-zinc-300">Rating</label>
+        <StarsInteractive value={rating} onChange={setRating} />
+      </div>
+
+      <div className="grid gap-2">
+        <label className="text-sm text-zinc-300">Your Review</label>
+        <textarea
+          className="min-h-[120px] resize-y rounded-xl border border-white/10 bg-zinc-800/60 p-3 text-sm outline-none ring-0 placeholder:text-zinc-400 focus:border-white/20"
+          placeholder="Share your thoughts…"
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+        />
+      </div>
+
+      <div className="flex justify-end gap-3">
+        <button type="submit" className="rounded-xl bg-red-600 px-4 py-2 font-medium text-white hover:bg-red-500">
+          {submittingLabel}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+
+function ReviewCard({
+  review,
+  onEdit,
+  onDelete,
+}: {
+  review: Review;
+  onEdit: (r: Review) => void;
+  onDelete: (id: string) => void;
+}) {
+  return (
+    <div className="rounded-2xl bg-red-700/90 p-5 text-white shadow-lg ring-1 ring-black/20">
+      <div className="flex items-center justify-between">
+        <Stars value={review.rating} />
+        <button
+          className="rounded-full p-1 text-white/80 hover:bg-black/20"
+          aria-label="Delete"
+          onClick={() => onDelete(review.id)}
+          title="Delete"
+        >
+          ✕
+        </button>
+      </div>
+      <p className="mt-3 text-sm leading-6">{review.text}</p>
+      <div className="mt-4 flex items-center justify-between text-xs text-white/80">
+        <span>{formatDate(review.createdAt)}</span>
+        <div className="flex gap-2">
+          <button onClick={() => onEdit(review)} className="rounded-lg bg-white text-zinc-900 px-3 py-1 hover:bg-zinc-100">
+            Edit
+          </button>
+          <button onClick={() => onDelete(review.id)} className="rounded-lg bg-black/30 px-3 py-1 hover:bg-black/40">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+export default function MovieDetailPage() {
+    const { id } = useParams(); 
+    const movieId = Number(id);
+  
+    const [movie, setMovie] = useState<Movie | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [err, setErr] = useState<string | null>(null);
+  
+    
+    const [reviews, setReviews] = useState<Review[]>(INITIAL_REVIEWS);
+    const [addOpen, setAddOpen] = useState(false);
+    const [editOpen, setEditOpen] = useState<null | Review>(null);
+  
+    useEffect(() => {
+      let active = true;
+      setLoading(true);
+      setErr(null);
+      fetchMovieDetail(movieId)
+        .then((m) => { if (active) setMovie(m); })
+        .catch((e) => { if (active) setErr(e instanceof Error ? e.message : String(e)); })
+        .finally(() => { if (active) setLoading(false); });
+      return () => { active = false; };
+    }, [movieId]);
+
+    const avgRating = useMemo(() => {
+        if (!reviews.length) return 0;
+        return Math.round(reviews.reduce((acc, r) => acc + r.rating, 0) / reviews.length);
+    }, [reviews]);
+
+    return (
+        <div className="min-h-screen bg-[#0b0b0c] text-white">
+          <Header onSearch={() => {}} />
+    
+          <main className="mx-auto max-w-6xl px-4 pb-24 pt-10">
+            {loading && <div className="text-center text-zinc-300">Loading…</div>}
+            {err && <div className="text-center text-red-400">Error: {err}</div>}
+            {!loading && !err && movie && (
+              <div className="grid grid-cols-1 gap-10 md:grid-cols-[260px_1fr_380px]">
+                
+                <div className="order-1 md:order-none">
+                  <div className="overflow-hidden rounded-2xl ring-1 ring-white/10 shadow-2xl">
+                    <img
+                      src={movie.poster}
+                      alt={`${movie.title} poster`}
+                      className="h-[360px] w-full object-cover md:h-[420px]"
+                      onError={(e) => {
+                        (e.currentTarget as HTMLImageElement).src =
+                          "https://images.unsplash.com/photo-1524985069026-dd778a71c7b4?q=80&w=600&auto=format&fit=crop";
+                      }}
+                    />
+                  </div>
+                </div>
+    
+                
+                <section className="space-y-4">
+                  <h1 className="text-2xl font-semibold">Title: {movie.title}</h1>
+                  <p className="text-zinc-300">
+                    <span className="font-medium text-white">Genre:</span> {movie.genre}
+                  </p>
+                  <p className="text-zinc-300">
+                    <span className="font-medium text-white">Release Date:</span> {movie.releaseDate}
+                  </p>
+                  <div className="space-y-2">
+                    <div className="font-medium text-white">Overview:</div>
+                    <p className="max-w-prose leading-7 text-zinc-300">{movie.overview}</p>
+                  </div>
+    
+                  <div className="pt-2">
+                    <button
+                      onClick={() => setAddOpen(true)}
+                      className="inline-flex items-center gap-2 rounded-full bg-green-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-green-500"
+                    >
+                      <span>＋</span> Add Review
+                    </button>
+                  </div>
+                </section>
+    
+                
+                <aside className="space-y-4">
+                  <div className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                    <div className="flex items-center justify-between">
+                      <div className="text-sm text-zinc-300">Average rating</div>
+                      <div className="text-xs text-zinc-400">
+                        {reviews.length} review{reviews.length === 1 ? "" : "s"}
+                      </div>
+                    </div>
+                    <div className="mt-2 flex items-center gap-3">
+                      <Stars value={Math.round(avgRating)} />
+                      <div className="text-xs text-zinc-400">({avgRating}/5)</div>
+                    </div>
+                  </div>
+    
+                  <div className="space-y-4">
+                    {reviews.map((r) => (
+                      <ReviewCard
+                        key={r.id}
+                        review={r}
+                        onEdit={(rv) => setEditOpen(rv)}
+                        onDelete={(id) => setReviews((prev) => prev.filter((x) => x.id !== id))}
+                      />
+                    ))}
+                    {!reviews.length && (
+                      <div className="rounded-xl border border-white/10 p-6 text-center text-sm text-zinc-400">
+                        No reviews yet — be the first to add one.
+                      </div>
+                    )}
+                  </div>
+                </aside>
+              </div>
+            )}
+          </main>
+    
+          
+          <Modal open={addOpen} onClose={() => setAddOpen(false)} title={`Add a review for ${movie?.title ?? ""}`}>
+            <ReviewForm
+              onSubmit={(v) => {
+                setReviews((prev) => [
+                  { id: Math.random().toString(36).slice(2), userId: currentUserId, text: v.text, rating: v.rating, createdAt: new Date().toISOString() },
+                  ...prev,
+                ]);
+                setAddOpen(false);
+              }}
+            />
+          </Modal>
+    
+          
+          <Modal open={!!editOpen} onClose={() => setEditOpen(null)} title="Edit your review">
+            {editOpen && (
+              <ReviewForm
+                defaultValue={editOpen}
+                submittingLabel="Update"
+                onSubmit={(v) => {
+                  setReviews((prev) => prev.map((x) => (x.id === editOpen.id ? { ...x, ...v } : x)));
+                  setEditOpen(null);
+                }}
+              />
+            )}
+          </Modal>
+        </div>
+      );
+}
