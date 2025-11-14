@@ -1,17 +1,18 @@
 "use client";
 
 import React, { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import Header from "../../components/Header";
 import type { Movie } from "../../models/Movie";
 import { fetchMovieDetail } from "../../api/tmdb";
-import { useParams } from "next/navigation"; // ✅ NEW
+import { useParams } from "next/navigation";
 
-/////////////////////////////////////////
+type User = {
+  id: string;
+  name: string;
+  email: string;
+} | null;
 
-// ---- Temporary logged-in user ----
-const currentUserId = "me-123";
-
-// ---- Reviews ----
 type Review = {
   id: string;
   userId: string;
@@ -20,7 +21,6 @@ type Review = {
   createdAt: string;
 };
 
-// Dummy reviews (your original)
 const INITIAL_REVIEWS: Review[] = [
   {
     id: "r1",
@@ -38,7 +38,6 @@ const INITIAL_REVIEWS: Review[] = [
   },
 ];
 
-// ------------------ Helpers ------------------
 function Star({ filled = false, size = 18 }: { filled?: boolean; size?: number }) {
   return (
     <svg
@@ -119,7 +118,6 @@ function formatDate(iso: string) {
   });
 }
 
-// ------------------ Modal ------------------
 function Modal({
   open,
   onClose,
@@ -152,7 +150,6 @@ function Modal({
   );
 }
 
-// ------------------ Review Form ------------------
 function ReviewForm({
   defaultValue,
   onSubmit,
@@ -196,17 +193,18 @@ function ReviewForm({
   );
 }
 
-// ------------------ Review Card ------------------
 function ReviewCard({
   review,
   onEdit,
   onDelete,
+  currentUserId,
 }: {
   review: Review;
   onEdit: (r: Review) => void;
   onDelete: (id: string) => void;
+  currentUserId: string | null;
 }) {
-  const isOwner = review.userId === currentUserId;
+  const isOwner = currentUserId && review.userId === currentUserId;
 
   return (
     <div className="rounded-2xl bg-red-700/90 p-5 text-white shadow-lg ring-1 ring-black/20">
@@ -251,9 +249,8 @@ function ReviewCard({
   );
 }
 
-// ------------------ MAIN PAGE ------------------
 export default function MovieDetailPage() {
-  const params = useParams(); // ✅ use hook instead of props
+  const params = useParams();
   const id = params?.id as string;
   const movieId = Number(id);
 
@@ -264,6 +261,8 @@ export default function MovieDetailPage() {
   const [reviews, setReviews] = useState<Review[]>(INITIAL_REVIEWS);
   const [addOpen, setAddOpen] = useState(false);
   const [editOpen, setEditOpen] = useState<Review | null>(null);
+
+  const [user, setUser] = useState<User>(null);
 
   useEffect(() => {
     if (!movieId || Number.isNaN(movieId)) return;
@@ -277,10 +276,21 @@ export default function MovieDetailPage() {
       )
       .finally(() => active && setLoading(false));
 
+    const savedUser =
+      typeof window !== "undefined"
+        ? localStorage.getItem("cineLocalUser")
+        : null;
+
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+
     return () => {
       active = false;
     };
   }, [movieId]);
+
+  const currentUserId = user?.id ?? null;
 
   const avgRating = useMemo(() => {
     if (!reviews.length) return 0;
@@ -301,7 +311,6 @@ export default function MovieDetailPage() {
 
         {!loading && !err && movie && (
           <div className="grid grid-cols-1 md:grid-cols-[260px_1fr_380px] gap-10">
-            {/* Poster */}
             <div>
               <div className="rounded-2xl shadow-2xl ring-1 ring-white/10 overflow-hidden">
                 <img
@@ -311,7 +320,6 @@ export default function MovieDetailPage() {
               </div>
             </div>
 
-            {/* Movie Details */}
             <div className="space-y-4">
               <h1 className="text-2xl font-semibold">Title: {movie.title}</h1>
 
@@ -332,57 +340,77 @@ export default function MovieDetailPage() {
                 </p>
               </div>
 
-              <button
-                onClick={() => setAddOpen(true)}
-                className="bg-green-600 text-white px-4 py-2 rounded-full shadow hover:bg-green-500 mt-2 flex items-center gap-2"
-              >
-                ＋ Add Review
-              </button>
+              {user && (
+                <button
+                  onClick={() => setAddOpen(true)}
+                  className="bg-green-600 text-white px-4 py-2 rounded-full shadow hover:bg-green-500 mt-2 flex items-center gap-2"
+                >
+                  ＋ Add Review
+                </button>
+              )}
             </div>
 
-            {/* Reviews Panel */}
-            <aside className="space-y-4">
-              <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
-                <div className="flex justify-between">
-                  <div className="text-sm text-zinc-300">Average rating</div>
-                  <div className="text-xs text-zinc-400">
-                    {reviews.length} review
-                    {reviews.length !== 1 && "s"}
+            {user ? (
+              <aside className="space-y-4">
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-4">
+                  <div className="flex justify-between">
+                    <div className="text-sm text-zinc-300">Average rating</div>
+                    <div className="text-xs text-zinc-400">
+                      {reviews.length} review
+                      {reviews.length !== 1 && "s"}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-3 mt-2">
+                    <Stars value={Math.round(avgRating)} />
+                    <span className="text-xs text-zinc-400">
+                      ({avgRating}/5)
+                    </span>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3 mt-2">
-                  <Stars value={Math.round(avgRating)} />
-                  <span className="text-xs text-zinc-400">
-                    ({avgRating}/5)
-                  </span>
+                <div className="space-y-4">
+                  {reviews.map((r) => (
+                    <ReviewCard
+                      key={r.id}
+                      review={r}
+                      currentUserId={currentUserId}
+                      onEdit={(rv) => setEditOpen(rv)}
+                      onDelete={(id) =>
+                        setReviews((prev) => prev.filter((x) => x.id !== id))
+                      }
+                    />
+                  ))}
+
+                  {!reviews.length && (
+                    <div className="text-center text-sm text-zinc-400 p-6 border border-white/10 rounded-xl">
+                      No reviews yet — be the first to add one.
+                    </div>
+                  )}
                 </div>
-              </div>
-
-              <div className="space-y-4">
-                {reviews.map((r) => (
-                  <ReviewCard
-                    key={r.id}
-                    review={r}
-                    onEdit={(rv) => setEditOpen(rv)}
-                    onDelete={(id) =>
-                      setReviews((prev) => prev.filter((x) => x.id !== id))
-                    }
-                  />
-                ))}
-
-                {!reviews.length && (
-                  <div className="text-center text-sm text-zinc-400 p-6 border border-white/10 rounded-xl">
-                    No reviews yet — be the first to add one.
-                  </div>
-                )}
-              </div>
-            </aside>
+              </aside>
+            ) : (
+              <aside>
+                <div className="bg-white/5 border border-white/10 rounded-2xl p-6 text-center">
+                  <h3 className="font-semibold text-white text-lg">
+                    Log in to see reviews
+                  </h3>
+                  <p className="text-sm text-zinc-400 mt-2 mb-4">
+                    Sign up or log in to share your thoughts and see what others
+                    are saying.
+                  </p>
+                  <Link href="/login">
+                    <button className="bg-red-600 text-white px-5 py-2 rounded-xl hover:bg-red-500 font-semibold">
+                      Log In / Sign Up
+                    </button>
+                  </Link>
+                </div>
+              </aside>
+            )}
           </div>
         )}
       </main>
 
-      {/* Add Review Modal */}
       <Modal
         open={addOpen}
         onClose={() => setAddOpen(false)}
@@ -390,10 +418,12 @@ export default function MovieDetailPage() {
       >
         <ReviewForm
           onSubmit={(v) => {
+            if (!user) return;
+
             setReviews((prev) => [
               {
                 id: Math.random().toString(36).slice(2),
-                userId: currentUserId,
+                userId: user.id,
                 rating: v.rating,
                 text: v.text,
                 createdAt: new Date().toISOString(),
@@ -405,7 +435,6 @@ export default function MovieDetailPage() {
         />
       </Modal>
 
-      {/* Edit Review Modal */}
       <Modal
         open={!!editOpen}
         onClose={() => setEditOpen(null)}
