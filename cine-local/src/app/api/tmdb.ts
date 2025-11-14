@@ -6,7 +6,7 @@ type TMDBMovieRaw = {
   poster_path: string | null;
   release_date: string;
   overview: string;
-  vote_average: number; // 0..10
+  vote_average: number;
   genre_ids: number[];
 };
 
@@ -22,23 +22,22 @@ type TMDBMovieDetail = {
   tagline?: string;
 };
 
-
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const IMG_BASE = "https://image.tmdb.org/t/p/w500";
 
-// Fallback poster if missing
 const FALLBACK_POSTER =
   "https://via.placeholder.com/200x300/1f2937/DC2626?text=No+Image";
+
+/* ---------- converters ---------- */
 
 function toAppMovie(m: TMDBMovieRaw): Movie {
   return {
     id: m.id,
     title: m.title,
     poster: m.poster_path ? `${IMG_BASE}${m.poster_path}` : FALLBACK_POSTER,
-    genre: "Popular", // TMDB returns genre IDs here; for a quick display we label as Popular
+    genre: "Popular",
     releaseDate: m.release_date || "—",
     overview: m.overview || "",
-    
     rating: Math.round((m.vote_average / 2) * 10) / 10,
   };
 }
@@ -51,49 +50,48 @@ function toAppMovieDetail(m: TMDBMovieDetail): Movie {
     genre: m.genres.map((g) => g.name).join(", "),
     releaseDate: m.release_date || "—",
     overview: m.overview || "",
-    
     rating: Math.round((m.vote_average / 2) * 10) / 10,
-  }
+  };
 }
+
+/* ---------- Detail Fetcher ---------- */
 
 export async function fetchMovieDetail(movieId: number): Promise<Movie> {
-  const token = process.env.REACT_APP_TMDB_READ_TOKEN;
+  const token = process.env.NEXT_PUBLIC_TMDB_READ_TOKEN;
 
   if (!token) {
-    throw new Error();
+    throw new Error("Missing NEXT_PUBLIC_TMDB_READ_TOKEN in .env.local");
   }
 
-  const url = `${TMDB_BASE}/movie/${movieId}?language=en-US`
+  const url = `${TMDB_BASE}/movie/${movieId}?language=en-US`;
+
   const res = await fetch(url, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-        accept: "application/json"
-      }
-    });
+    headers: {
+      Authorization: `Bearer ${token}`,
+      accept: "application/json",
+    },
+  });
 
-    if (!res.ok) {
-      const text = await res.text().catch(() => "");
-      throw new Error(`TMDB error ${res.status}: ${text || res.statusText}`);
-    }
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`TMDB error ${res.status}: ${text || res.statusText}`);
+  }
 
-    const data: TMDBMovieDetail = await res.json();
-    return toAppMovieDetail(data);
-
-    
+  const data: TMDBMovieDetail = await res.json();
+  return toAppMovieDetail(data);
 }
 
-/**
- * Fetch N popular movies (default 5) from TMDB.
- */
+/* ---------- Popular Movies Fetcher ---------- */
+
 export async function fetchPopularMovies(limit = 5): Promise<Movie[]> {
-  const token = process.env.REACT_APP_TMDB_READ_TOKEN;
+  const token = process.env.NEXT_PUBLIC_TMDB_READ_TOKEN;
+
   if (!token) {
-    throw new Error(
-      "Missing REACT_APP_TMDB_READ_TOKEN. Add it to your .env and restart the dev server."
-    );
+    throw new Error("Missing NEXT_PUBLIC_TMDB_READ_TOKEN in .env.local");
   }
 
   const url = `${TMDB_BASE}/movie/popular?language=en-US&page=1`;
+
   const res = await fetch(url, {
     headers: {
       Authorization: `Bearer ${token}`,

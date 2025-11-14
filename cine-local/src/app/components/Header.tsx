@@ -1,5 +1,8 @@
-import { Link, useNavigate } from "react-router-dom";
+"use client";
+
 import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 type HeaderProps = {
   onSearch: (query: string) => void;
@@ -14,10 +17,14 @@ type User = {
 export default function Header({ onSearch }: HeaderProps) {
   const [query, setQuery] = useState("");
   const [user, setUser] = useState<User>(null);
-  const navigate = useNavigate();
+  const router = useRouter();
 
+  // Load user from localStorage (client only)
   useEffect(() => {
-    const savedUser = localStorage.getItem("cineLocalUser");
+    const savedUser = typeof window !== "undefined"
+      ? localStorage.getItem("cineLocalUser")
+      : null;
+
     if (savedUser) {
       setUser(JSON.parse(savedUser));
     }
@@ -31,7 +38,10 @@ export default function Header({ onSearch }: HeaderProps) {
 
   function handleLogout() {
     setUser(null);
-    navigate("/login");
+    if (typeof window !== "undefined") {
+      localStorage.removeItem("cineLocalUser");
+    }
+    router.push("/login");
   }
 
   return (
@@ -84,7 +94,7 @@ export default function Header({ onSearch }: HeaderProps) {
             </>
           ) : (
             <>
-              <Link to="/login" style={{ textDecoration: "none" }}>
+              <Link href="/login" style={{ textDecoration: "none" }}>
                 <button
                   style={{
                     color: "white",
@@ -99,7 +109,7 @@ export default function Header({ onSearch }: HeaderProps) {
                 </button>
               </Link>
 
-              <Link to="/signup" style={{ textDecoration: "none" }}>
+              <Link href="/signup" style={{ textDecoration: "none" }}>
                 <button
                   style={{
                     backgroundColor: "#DC2626",
@@ -128,7 +138,7 @@ export default function Header({ onSearch }: HeaderProps) {
           marginBottom: "2rem",
         }}
       >
-        <Link to="/browse" style={{ textDecoration: "none" }}>
+        <Link href="/browse" style={{ textDecoration: "none" }}>
           <h1
             style={{
               fontSize: "3.5rem",
@@ -171,9 +181,3 @@ export default function Header({ onSearch }: HeaderProps) {
     </header>
   );
 }
-
-
-
-
-
-

@@ -80,4 +80,3 @@ Upload image to `/images/` and link it below:
 -  
 -  
 ---
-
