@@ -24,7 +24,7 @@ type Review = {
 const INITIAL_REVIEWS: Review[] = [
   {
     id: "r1",
-    userId: "me-123",
+    userId: "Gadir",
     rating: 5,
     text: "Amazing movie!! Great screenplay.",
     createdAt: new Date().toISOString(),
@@ -290,7 +290,7 @@ export default function MovieDetailPage() {
     };
   }, [movieId]);
 
-  const currentUserId = user?.id ?? null;
+  const currentUserId = user?.name ?? null;
 
   const avgRating = useMemo(() => {
     if (!reviews.length) return 0;
@@ -423,7 +423,7 @@ export default function MovieDetailPage() {
             setReviews((prev) => [
               {
                 id: Math.random().toString(36).slice(2),
-                userId: user.id,
+                userId: user.name,
                 rating: v.rating,
                 text: v.text,
                 createdAt: new Date().toISOString(),
