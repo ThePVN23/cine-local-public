@@ -24,9 +24,9 @@ type TMDBMovieDetail = {
 
 const TMDB_BASE = "https://api.themoviedb.org/3";
 const IMG_BASE = "https://image.tmdb.org/t/p/w500";
-const FALLBACK_POSTER = "https://via.placeholder.com/200x300/1f2937/DC2626?text=No+Image";
+const FALLBACK_POSTER =
+  "https://via.placeholder.com/200x300/1f2937/DC2626?text=No+Image";
 
-/* ---------- converters ---------- */
 function toAppMovie(m: TMDBMovieRaw): Movie {
   return {
     id: m.id,
@@ -51,10 +51,10 @@ function toAppMovieDetail(m: TMDBMovieDetail): Movie {
   };
 }
 
-/* ---------- Detail Fetcher ---------- */
 export async function fetchMovieDetail(movieId: number): Promise<Movie> {
   const token = process.env.NEXT_PUBLIC_TMDB_READ_TOKEN;
-  if (!token) throw new Error("Missing NEXT_PUBLIC_TMDB_READ_TOKEN in .env.local");
+  if (!token)
+    throw new Error("Missing NEXT_PUBLIC_TMDB_READ_TOKEN in .env.local");
 
   const url = `${TMDB_BASE}/movie/${movieId}?language=en-US`;
   const res = await fetch(url, {
@@ -73,10 +73,10 @@ export async function fetchMovieDetail(movieId: number): Promise<Movie> {
   return toAppMovieDetail(data);
 }
 
-/* ---------- Popular Movies Fetcher ---------- */
 export async function fetchPopularMovies(limit = 5): Promise<Movie[]> {
   const token = process.env.NEXT_PUBLIC_TMDB_READ_TOKEN;
-  if (!token) throw new Error("Missing NEXT_PUBLIC_TMDB_READ_TOKEN in .env.local");
+  if (!token)
+    throw new Error("Missing NEXT_PUBLIC_TMDB_READ_TOKEN in .env.local");
 
   const url = `${TMDB_BASE}/movie/popular?language=en-US&page=1`;
   const res = await fetch(url, {
@@ -93,4 +93,29 @@ export async function fetchPopularMovies(limit = 5): Promise<Movie[]> {
 
   const data: { results: TMDBMovieRaw[] } = await res.json();
   return (data.results || []).slice(0, limit).map(toAppMovie);
+}
+
+export async function searchMovies(query: string): Promise<Movie[]> {
+  const token = process.env.NEXT_PUBLIC_TMDB_READ_TOKEN;
+  if (!token)
+    throw new Error("Missing NEXT_PUBLIC_TMDB_READ_TOKEN in .env.local");
+
+  const url = `${TMDB_BASE}/search/movie?language=en-US&page=1&query=${encodeURIComponent(
+    query
+  )}`;
+
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      accept: "application/json",
+    },
+  });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => "");
+    throw new Error(`TMDB error ${res.status}: ${text || res.statusText}`);
+  }
+
+  const data: { results: TMDBMovieRaw[] } = await res.json();
+  return (data.results || []).slice(0, 10).map(toAppMovie);
 }

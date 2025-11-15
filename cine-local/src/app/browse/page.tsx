@@ -5,14 +5,8 @@ import { useRouter } from "next/navigation";
 
 import Header from "../components/Header";
 import type { Movie } from "../models/Movie";
-import { fetchPopularMovies } from "../api/tmdb";
-
-
-
-
+import { fetchPopularMovies, searchMovies } from "../api/tmdb";
 import MovieCard from "../components/MovieCard";
-
-
 
 export default function BrowsePage() {
   const router = useRouter();
@@ -22,7 +16,6 @@ export default function BrowsePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Initial load from TMDB
   useEffect(() => {
     let isMounted = true;
 
@@ -31,10 +24,10 @@ export default function BrowsePage() {
         setLoading(true);
         setError(null);
 
-        const movies = await fetchPopularMovies(5); 
+        const movies = await fetchPopularMovies(5);
         if (!isMounted) return;
 
-        console.log("TMDB movies:", movies); 
+        console.log("TMDB movies:", movies);
 
         setAllMovies(movies);
         setFilteredMovies(movies);
@@ -51,16 +44,28 @@ export default function BrowsePage() {
     };
   }, []);
 
-  const handleSearch = (query: string) => {
-    
+  const handleSearch = async (query: string) => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (!query) {
+        setFilteredMovies(allMovies);
+      } else {
+        const results = await searchMovies(query);
+        setFilteredMovies(results);
+      }
+    } catch (e: any) {
+      setError(e?.message || "Failed to search");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#000" }}>
-      <Header onSearch={function (query: string): void {
-        throw new Error("Function not implemented.");
-      } } />
-      
+      <Header onSearch={handleSearch} />
+
       <div style={{ maxWidth: "80rem", margin: "0 auto", padding: "3rem 2rem" }}>
         <h2
           style={{
@@ -71,13 +76,21 @@ export default function BrowsePage() {
             letterSpacing: "0.1em",
           }}
         >
-          {filteredMovies.length === allMovies.length ? "TRENDING MOVIES" : "SEARCH RESULTS"}
+          {filteredMovies.length === allMovies.length
+            ? "TRENDING MOVIES"
+            : "SEARCH RESULTS"}
         </h2>
 
         {error && (
-            <div style={{ color: "red", fontSize: "1.2rem", marginBottom: "1rem" }}>
-                {error}
-            </div>
+          <div
+            style={{ color: "red", fontSize: "1.2rem", marginBottom: "1rem" }}
+          >
+            {error}
+          </div>
+        )}
+
+        {loading && (
+          <div style={{ color: "white", textAlign: "center" }}>Loading...</div>
         )}
 
         {!loading && !error && filteredMovies.length > 0 && (
@@ -88,14 +101,15 @@ export default function BrowsePage() {
               gap: "2rem",
             }}
           >
-            
             {filteredMovies.map((movie) => (
-              <MovieCard
-                key={movie.id}
-                movie={movie}
-                onClick={() => router.push(`/movieDetailPage/${movie.id}`)}
-              />
+              <MovieCard key={movie.id} movie={movie} />
             ))}
+          </div>
+        )}
+
+        {!loading && !error && filteredMovies.length === 0 && (
+          <div style={{ color: "white", textAlign: "center" }}>
+            No movies found.
           </div>
         )}
       </div>
