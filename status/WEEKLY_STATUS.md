@@ -50,15 +50,16 @@ Upload image to `/images/` and link it below:
 ## Progress Summary - **Week #3:**  Monday, Nov 10 -  Sunday, Nov 16
 
 ** What we completed this week:**  
-- 
--  
+- Dev: Finised the UI by creating the review form and the movie detail page.
+- Pavan: Finished the landing and the browse page while also adding the search functionality.
+- Usman: Finished the login and signup pages. 
 
 ** Issues / blockers encountered:**  
--  
+-  We had some problems with the git but we figured them out.
 -  
 
 ** Goals for next week:**  
--  
+-  Connect to mongodb and work on authentication.
 -  
 
 ---
