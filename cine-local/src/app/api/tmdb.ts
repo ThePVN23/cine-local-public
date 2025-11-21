@@ -52,7 +52,7 @@ function toAppMovieDetail(m: TMDBMovieDetail): Movie {
 }
 
 export async function fetchMovieDetail(movieId: number): Promise<Movie> {
-  const token = process.env.NEXT_PUBLIC_TMDB_READ_TOKEN;
+  const token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhN2RkNGVmZmMzMTgyYjU3NzhiYTdlYWFkMTZiY2RjNiIsIm5iZiI6MTc2MTkzMDQzMS45MTEsInN1YiI6IjY5MDRlY2JmNmI5ZTVhYzZiZDRjN2JlYyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.CHajXVPPAOvNlSiGcu_LnRPLPfpYfA4eBGr6hYj8sqQ"
   if (!token)
     throw new Error("Missing NEXT_PUBLIC_TMDB_READ_TOKEN in .env.local");
 
@@ -74,7 +74,7 @@ export async function fetchMovieDetail(movieId: number): Promise<Movie> {
 }
 
 export async function fetchPopularMovies(limit = 5): Promise<Movie[]> {
-  const token = process.env.NEXT_PUBLIC_TMDB_READ_TOKEN;
+  const token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhN2RkNGVmZmMzMTgyYjU3NzhiYTdlYWFkMTZiY2RjNiIsIm5iZiI6MTc2MTkzMDQzMS45MTEsInN1YiI6IjY5MDRlY2JmNmI5ZTVhYzZiZDRjN2JlYyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.CHajXVPPAOvNlSiGcu_LnRPLPfpYfA4eBGr6hYj8sqQ"
   if (!token)
     throw new Error("Missing NEXT_PUBLIC_TMDB_READ_TOKEN in .env.local");
 
@@ -96,7 +96,7 @@ export async function fetchPopularMovies(limit = 5): Promise<Movie[]> {
 }
 
 export async function searchMovies(query: string): Promise<Movie[]> {
-  const token = process.env.NEXT_PUBLIC_TMDB_READ_TOKEN;
+  const token = "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJhN2RkNGVmZmMzMTgyYjU3NzhiYTdlYWFkMTZiY2RjNiIsIm5iZiI6MTc2MTkzMDQzMS45MTEsInN1YiI6IjY5MDRlY2JmNmI5ZTVhYzZiZDRjN2JlYyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.CHajXVPPAOvNlSiGcu_LnRPLPfpYfA4eBGr6hYj8sqQ"
   if (!token)
     throw new Error("Missing NEXT_PUBLIC_TMDB_READ_TOKEN in .env.local");
 

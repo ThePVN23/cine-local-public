@@ -1,21 +1,27 @@
+// src/app/browse/BrowseClient.tsx
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import Header from "../../components/Header";
+import type { Movie } from "../../models/Movie";
+import { fetchPopularMovies, searchMovies } from "../../api/tmdb";
+import MovieCard from "../../components/MovieCard";
 
-import Header from "../components/Header";
-import type { Movie } from "../models/Movie";
-import { fetchPopularMovies, searchMovies } from "../api/tmdb";
-import MovieCard from "../components/MovieCard";
+type BrowseClientProps = {
+  user: {
+    id?: string;
+    name?: string | null;
+    email?: string | null;
+  } | null;
+};
 
-export default function BrowsePage() {
-  const router = useRouter();
-
+export default function BrowseClient({ user }: BrowseClientProps) {
   const [allMovies, setAllMovies] = useState<Movie[]>([]);
   const [filteredMovies, setFilteredMovies] = useState<Movie[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Load popular movies on mount
   useEffect(() => {
     let isMounted = true;
 
@@ -64,7 +70,8 @@ export default function BrowsePage() {
 
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#000" }}>
-      <Header onSearch={handleSearch} />
+      
+      
 
       <div style={{ maxWidth: "80rem", margin: "0 auto", padding: "3rem 2rem" }}>
         <h2

@@ -1,33 +1,31 @@
-import { NextResponse } from 'next/server';
-import bcrypt from 'bcryptjs';
-import User from '../../models/User';
-import dbConnect from '../../../lib/db';
+import { NextResponse } from "next/server";
+import bcrypt from "bcrypt";
+import dbConnect from '../../../../config/mongodb'; // adjust
+import User from "../../models/User";          // adjust
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
+  const { username, email, password } = await request.json();
+
+  if (!username || !email || !password) {
+    return NextResponse.json(
+      { message: "Missing fields" },
+      { status: 400 }
+    );
+  }
+
+  await dbConnect();
+
+  const existing = await User.findOne({ email }).lean();
+  if (existing) {
+    return NextResponse.json(
+      { message: "Email already in use" },
+      { status: 400 }
+    );
+  }
+
+  const hashedPassword = await bcrypt.hash(password, 5);
+
   try {
-    const body = await req.json();
-    const { username, email, password } = body;
-
-    if (!username || !email || !password) {
-      return NextResponse.json(
-        { message: 'All fields are required' },
-        { status: 400 }
-      );
-    }
-
-    await dbConnect();
-
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return NextResponse.json(
-        { message: 'User already exists with this email' },
-        { status: 409 }
-      );
-    }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
     await User.create({
       username,
       email,
@@ -38,14 +36,13 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json(
-      { message: 'User created successfully' },
+      { message: "User created" },
       { status: 201 }
     );
-
-  } catch (error: any) {
-    console.error("Signup Error:", error);
+  } catch (err) {
+    console.error("Signup error:", err);
     return NextResponse.json(
-      { message: 'Internal Server Error' },
+      { message: "Error creating user" },
       { status: 500 }
     );
   }

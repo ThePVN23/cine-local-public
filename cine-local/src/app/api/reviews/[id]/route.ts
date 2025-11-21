@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import Review from '../../../models/Review';
-import dbConnect from '../../../../lib/db';
+import dbConnect from '../../../../../config/mongodb';
 
 export async function PUT(req: Request, { params }: { params: { id: string } }) {
   try {

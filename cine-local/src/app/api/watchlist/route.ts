@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import User from '../../models/User';
 import WatchlistMovie from '../../models/WatchlistMovie';
-import dbConnect from '../../../lib/db';
+import dbConnect from '../../../../config/mongodb';
 
 export async function POST(req: Request) {
   try {

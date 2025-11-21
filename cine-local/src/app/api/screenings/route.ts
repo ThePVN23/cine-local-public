@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import Screening from '../../models/Screening';
-import dbConnect from '../../../lib/db';
+import dbConnect from '../../../../config/mongodb';
 
 export async function POST(req: Request) {
   try {
