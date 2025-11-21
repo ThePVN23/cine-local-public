@@ -2,10 +2,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Header from "../../components/Header";
-import type { Movie } from "../../models/Movie";
-import { fetchPopularMovies, searchMovies } from "../../api/tmdb";
-import MovieCard from "../../components/MovieCard";
+import Header from "./Header";
+import type { Movie } from "../models/Movie";
+import { fetchPopularMovies, searchMovies } from "../api/tmdb";
+import MovieCard from "./MovieCard";
 
 type BrowseClientProps = {
   user: {

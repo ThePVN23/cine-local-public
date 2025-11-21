@@ -1,20 +1,22 @@
-// src/app/movieDetailPage/[id]/page.tsx
-import { auth } from "@/auth";
-import MovieDetailClient from "./MovieDetailClient";
+"use client";
 
-type PageProps = {
-  params: Promise<{ id: string }>;
-};
+import { useSession } from "next-auth/react";
+import { useParams } from "next/navigation";
+import MovieDetailClient from "../../../components/MovieDetailClient";
 
-export default async function MovieDetailPage({ params }: PageProps) {
-  
-  const { id } = await params;
+export default function MovieDetailPage() {
+  const params = useParams();
+  const id = params.id; // <-- now you have your movie ID
 
-  const session = await auth();
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
 
   return (
     <MovieDetailClient
-      movieId={id}
+      movieId={id as string}
       user={session?.user ?? null}
     />
   );

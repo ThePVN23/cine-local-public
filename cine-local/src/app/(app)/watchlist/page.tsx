@@ -1,8 +1,15 @@
-import { auth } from "@/auth";
-import WatchlistClient from "./WatchlistClient";
+"use client";
 
-export default async function WatchlistPage() {
-  const session = await auth();
+import { auth } from "@/auth";
+import WatchlistClient from "../../components/WatchlistClient";
+import { useSession } from "next-auth/react";
+
+export default function WatchlistPage() {
+  const { data: session, status } = useSession();
+
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
 
   return (
     <WatchlistClient user={session?.user ?? null} />

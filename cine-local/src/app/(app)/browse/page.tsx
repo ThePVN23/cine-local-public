@@ -1,11 +1,14 @@
+"use client";
 
-import { auth } from "@/auth";
-import BrowseClient from "./BrowseClient";
+import { useSession } from "next-auth/react"; // or "@auth/nextjs" depending on setup
+import BrowseClient from "../../components/BrowseClient";
 
-export default async function BrowsePage() {
-  const session = await auth(); 
+export default function BrowsePage() {
+  const { data: session, status } = useSession();
 
-  return (
-    <BrowseClient user={session?.user ?? null} />
-  );
+  if (status === "loading") {
+    return <div>Loading...</div>;
+  }
+
+  return <BrowseClient user={session?.user ?? null} />;
 }
