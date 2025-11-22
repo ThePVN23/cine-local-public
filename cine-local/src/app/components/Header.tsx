@@ -3,17 +3,12 @@
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
-type HeaderProps = {
-  user: {
-    id?: string;
-    name?: string | null;
-    email?: string | null;
-  } | null;
-};
+export default function Header() {
+  const { data: session } = useSession();
+  const user = session?.user;
 
-export default function Header({ user }: HeaderProps) {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [showSuggestions, setShowSuggestions] = useState(false);
@@ -22,7 +17,6 @@ export default function Header({ user }: HeaderProps) {
   const searchParams = useSearchParams();
   const wrapperRef = useRef<HTMLDivElement | null>(null);
 
-  // sync input with ?search param + click outside
   useEffect(() => {
     const urlSearch = searchParams.get("search");
     if (urlSearch) setQuery(urlSearch);
@@ -40,7 +34,6 @@ export default function Header({ user }: HeaderProps) {
     return () => document.removeEventListener("click", handleClickOutside);
   }, [searchParams]);
 
-  // TMDB autocomplete
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
       if (query.length > 2) {
@@ -104,7 +97,6 @@ export default function Header({ user }: HeaderProps) {
         padding: "3rem 2rem 4rem",
       }}
     >
-      {/* Top bar: user nav or login/signup */}
       <div
         style={{
           maxWidth: "80rem",
@@ -149,7 +141,7 @@ export default function Header({ user }: HeaderProps) {
                     cursor: "pointer",
                   }}
                 >
-                  📺 Watchlist
+                  Watchlist
                 </button>
               </Link>
 
@@ -166,7 +158,7 @@ export default function Header({ user }: HeaderProps) {
                     cursor: "pointer",
                   }}
                 >
-                  🎟️ Host
+                  Host
                 </button>
               </Link>
 
@@ -183,7 +175,7 @@ export default function Header({ user }: HeaderProps) {
                     cursor: "pointer",
                   }}
                 >
-                  📝 My Reviews
+                  My Reviews
                 </button>
               </Link>
 
@@ -239,7 +231,6 @@ export default function Header({ user }: HeaderProps) {
         </div>
       </div>
 
-      {/* Logo */}
       <div
         style={{
           display: "flex",
@@ -262,7 +253,6 @@ export default function Header({ user }: HeaderProps) {
         </Link>
       </div>
 
-      {/* Search + suggestions */}
       <div
         style={{
           maxWidth: "64rem",

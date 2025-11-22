@@ -1,10 +1,10 @@
-// auth.ts
 import NextAuth, {
   getServerSession,
   type NextAuthOptions,
 } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-import bcrypt from "bcrypt";
+// FIX: Use bcryptjs instead of bcrypt for Edge compatibility
+import bcrypt from "bcryptjs";
 
 import { authConfig } from "./auth.config";
 import connectMongoDB from "./config/mongodb";
@@ -18,7 +18,7 @@ type DBUser = {
 };
 
 export const authOptions: NextAuthOptions = {
-  ...authConfig, 
+  ...authConfig,
   providers: [
     CredentialsProvider({
       name: "credentials",
@@ -51,7 +51,7 @@ export const authOptions: NextAuthOptions = {
             return null;
           }
 
-         
+
           return {
             id: dbUser._id.toString(),
             email: dbUser.email,
@@ -64,11 +64,11 @@ export const authOptions: NextAuthOptions = {
       },
     }),
   ],
- 
+
   callbacks: {
     async jwt({ token, user }) {
       if (user) {
-        
+
         token.id = (user as any).id;
       }
       return token;
