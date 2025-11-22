@@ -1,43 +1,75 @@
-import { NextResponse } from 'next/server';
-import Screening from '../../models/Screening';
-import dbConnect from '../../../../config/mongodb';
+import { NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "../../../../auth";
+import connectMongoDB from "@/config/mongodb";
+import Room from "../../models/Room";
+import Screening from "../../models/Screening";
 
-export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const { hostId, hostName, movieTitle, date, time, location, message } = body;
+export async function POST(request: Request) {
+  const session = await getServerSession(authOptions);
+  if (!session) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    if (!hostId || !movieTitle || !date || !location) {
-      return NextResponse.json({ message: 'Missing required fields' }, { status: 400 });
-    }
+  const { movieId, movieTitle, moviePoster, roomId, startTimeString } = await request.json();
 
-    await dbConnect();
+  await connectMongoDB();
 
-    const newScreening = await Screening.create({
-      hostId,
-      hostName,
-      movieTitle,
-      date,
-      time,
-      location,
-      message,
-      attendees: [hostId]
-    });
+  const room = await Room.findById(roomId);
+  if (!room) return NextResponse.json({ error: "Room not found" }, { status: 404 });
 
-    return NextResponse.json({ message: 'Screening created!', screening: newScreening }, { status: 201 });
+  const tmdbRes = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${process.env.TMDB_API_KEY}`);
+  const movieData = await tmdbRes.json();
+  const durationMinutes = movieData.runtime || 120; 
 
-  } catch (error) {
-    console.error(error);
-    return NextResponse.json({ message: 'Server error' }, { status: 500 });
+  const startTime = new Date(startTimeString);
+  const endTime = new Date(startTime.getTime() + durationMinutes * 60000);
+
+  const conflict = await Screening.findOne({
+    room: roomId,
+    $and: [
+      { startTime: { $lt: endTime } },
+      { endTime: { $gt: startTime } }
+    ]
+  });
+
+  if (conflict) {
+    return NextResponse.json({ error: "Room is already booked for this time" }, { status: 409 });
   }
+
+  const newScreening = await Screening.create({
+    host: (session.user as any).id,
+    movieId,
+    movieTitle,
+    moviePoster,
+    room: roomId,
+    startTime,
+    endTime,
+    attendees: [(session.user as any).id],
+    maxAttendees: room.maxOccupancy
+  });
+
+  return NextResponse.json(newScreening);
 }
 
-export async function GET() {
-  try {
-    await dbConnect();
-    const screenings = await Screening.find().sort({ createdAt: -1 });
-    return NextResponse.json(screenings, { status: 200 });
-  } catch (error) {
-    return NextResponse.json({ message: 'Server error' }, { status: 500 });
-  }
+export async function GET(request: Request) {
+    await connectMongoDB();
+    const { searchParams } = new URL(request.url);
+    const movieId = searchParams.get("movieId");
+    const hostId = searchParams.get("hostId");
+  
+    let query: any = { startTime: { $gte: new Date() } };
+
+    if (movieId) {
+      query.movieId = movieId;
+    }
+    
+    if (hostId) {
+      query.host = hostId;
+    }
+
+    const screenings = await Screening.find(query)
+      .populate("room")
+      .populate("host", "username")
+      .sort({ startTime: 1 });
+      
+    return NextResponse.json(screenings);
 }

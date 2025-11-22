@@ -1,15 +1,46 @@
-import mongoose, { Schema, model, models } from 'mongoose';
+import { Schema, model, models } from "mongoose";
 
 const ScreeningSchema = new Schema({
-  hostId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-  hostName: { type: String, required: true },
-  movieTitle: { type: String, required: true },
-  date: { type: String, required: true },
-  time: { type: String, required: true },
-  location: { type: String, required: true },
-  message: { type: String },
-  attendees: [{ type: Schema.Types.ObjectId, ref: 'User' }]
+  host: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  movieId: {
+    type: String,
+    required: true,
+  },
+  movieTitle: {
+    type: String,
+    required: true,
+  },
+  moviePoster: {
+    type: String,
+  },
+  room: {
+    type: Schema.Types.ObjectId,
+    ref: "Room",
+    required: true,
+  },
+  startTime: {
+    type: Date,
+    required: true,
+  },
+  endTime: {
+    type: Date,
+    required: true,
+  },
+  attendees: [{
+    type: Schema.Types.ObjectId,
+    ref: "User",
+  }],
+  maxAttendees: {
+    type: Number,
+    required: true, 
+  }
 }, { timestamps: true });
 
-const Screening = models.Screening || model('Screening', ScreeningSchema);
+ScreeningSchema.index({ room: 1, startTime: 1, endTime: 1 });
+
+const Screening = models.Screening || model("Screening", ScreeningSchema);
 export default Screening;

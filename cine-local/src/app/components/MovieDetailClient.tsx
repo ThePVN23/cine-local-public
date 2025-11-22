@@ -88,13 +88,15 @@ export default function MovieDetailClient({ movieId, user }: Props) {
       try {
         const res = await fetch(`/api/watchlist?userId=${userId}`);
         if (res.ok) {
-          const watchlist = await res.json();
+          const data = await res.json();
+          // Handle structure: { watchlist: [...] }
+          const watchlist = data.watchlist || [];
           const foundMovie = watchlist.find(
-            (m: any) => m.tmdbId === movieId.toString()
+            (m: any) => m.id.toString() === movieId.toString()
           );
           if (foundMovie) {
             setIsInWatchlist(true);
-            setWatchlistMongoId(foundMovie._id);
+            setWatchlistMongoId(foundMovie.id.toString());
           } else {
             setIsInWatchlist(false);
             setWatchlistMongoId(null);
@@ -116,48 +118,68 @@ export default function MovieDetailClient({ movieId, user }: Props) {
       return;
     }
 
-    const res = await fetch("/api/watchlist", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: user.id,
-        tmdbId: movie.id.toString(),
-        title: movie.title,
-        poster_path: movie.poster_path,
-        release_date: movie.release_date,
-      }),
-    });
+    try {
+      const res = await fetch("/api/watchlist", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          id: movie.id,
+          title: movie.title,
+          poster_path: movie.poster_path,
+          release_date: movie.release_date,
+        }),
+      });
 
-    if (res.ok) {
-      setIsInWatchlist(true);
-      const checkRes = await fetch(`/api/watchlist?userId=${user.id}`);
-      const watchlist = await checkRes.json();
-      const found = watchlist.find(
-        (m: any) => m.tmdbId === movieId.toString()
-      );
-      if (found) setWatchlistMongoId(found._id);
-    } else {
-      alert("Failed to add to watchlist");
+      if (res.ok) {
+        setIsInWatchlist(true);
+        // Refresh to get the new ID
+        const checkRes = await fetch(`/api/watchlist?userId=${user.id}`);
+        const data = await checkRes.json();
+        const watchlist = data.watchlist || [];
+        const found = watchlist.find(
+          (m: any) => m.id.toString() === movieId.toString()
+        );
+        if (found) setWatchlistMongoId(found.id.toString());
+      } else {
+        // FIX: Safely handle non-JSON error responses (like 500 server crashes)
+        const text = await res.text();
+        try {
+          const data = JSON.parse(text);
+          alert(data.error || data.message || "Failed to add to watchlist");
+        } catch {
+          console.error("API Crash Response:", text);
+          alert("Server Error: Check your VS Code terminal for details.");
+        }
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network Error");
     }
   }
 
   async function handleRemoveFromWatchlist() {
-    if (!user?.id || !watchlistMongoId) return;
+    if (!user?.id) return;
 
-    const res = await fetch("/api/watchlist", {
-      method: "DELETE",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        userId: user.id,
-        movieId: watchlistMongoId,
-      }),
-    });
+    try {
+      const res = await fetch("/api/watchlist", {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: user.id,
+          movieId: movie?.id,
+        }),
+      });
 
-    if (res.ok) {
-      setIsInWatchlist(false);
-      setWatchlistMongoId(null);
-    } else {
-      alert("Failed to remove from watchlist");
+      if (res.ok) {
+        setIsInWatchlist(false);
+        setWatchlistMongoId(null);
+      } else {
+        alert("Failed to remove from watchlist");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Network Error");
     }
   }
 
@@ -176,7 +198,6 @@ export default function MovieDetailClient({ movieId, user }: Props) {
         movieTitle: movie?.title || "Unknown",
         rating: newRating,
         comment: newComment,
-        // still sending these for now – ideally your API uses auth() instead
         userId: user.id,
         username: user.name || user.email,
       }),
@@ -244,7 +265,6 @@ export default function MovieDetailClient({ movieId, user }: Props) {
         position: "relative",
       }}
     >
-      {/* BACKDROP */}
       <div
         style={{
           position: "absolute",
@@ -292,7 +312,6 @@ export default function MovieDetailClient({ movieId, user }: Props) {
             alignItems: "flex-start",
           }}
         >
-          {/* Poster */}
           <img
             src={`https://image.tmdb.org/t/p/w500${movie.poster_path}`}
             alt={movie.title}
@@ -305,7 +324,6 @@ export default function MovieDetailClient({ movieId, user }: Props) {
             }}
           />
 
-          {/* Content */}
           <div style={{ flex: 1 }}>
             <h1
               style={{
@@ -331,7 +349,6 @@ export default function MovieDetailClient({ movieId, user }: Props) {
               {movie.overview}
             </p>
 
-            {/* Watchlist + Add Review buttons */}
             {user && !showAddForm && (
               <div
                 style={{
@@ -395,7 +412,6 @@ export default function MovieDetailClient({ movieId, user }: Props) {
               </div>
             )}
 
-            {/* Add Review form */}
             {user && showAddForm && (
               <form
                 onSubmit={handleAddReview}
@@ -476,7 +492,6 @@ export default function MovieDetailClient({ movieId, user }: Props) {
               </form>
             )}
 
-            {/* Reviews section */}
             <div style={{ marginTop: "3rem" }}>
               <h2
                 style={{
