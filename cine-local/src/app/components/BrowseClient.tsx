@@ -1,4 +1,4 @@
-// src/app/browse/BrowseClient.tsx
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -6,6 +6,7 @@ import Header from "./Header";
 import type { Movie } from "../models/Movie";
 import { fetchPopularMovies, searchMovies } from "../api/tmdb";
 import MovieCard from "./MovieCard";
+import Card from "./Card";
 
 type BrowseClientProps = {
   user: {
@@ -108,9 +109,11 @@ export default function BrowseClient({ user }: BrowseClientProps) {
               gap: "2rem",
             }}
           >
-            {filteredMovies.map((movie) => (
-              <MovieCard key={movie.id} movie={movie} />
-            ))}
+           {filteredMovies.map((movie) => (
+            <Card key={movie.id}>
+              <MovieCard movie={movie} />
+            </Card>
+          ))}
           </div>
         )}
 
