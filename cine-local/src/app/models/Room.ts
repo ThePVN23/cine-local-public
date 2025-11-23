@@ -5,7 +5,16 @@ const RoomSchema = new Schema({
     type: String,
     required: true,
     enum: [
-      ""
+      "Zell B. Miller Learning Center", 
+      "Shirley Mathis McBay Science Library", 
+      "Main Library", 
+      "Russell Hall", 
+      "Brumby Hall", 
+      "Creswell Hall", 
+      "Black-Diallo-Miller Hall", 
+      "Building 1516",
+      "Boyd", 
+      "Tate Student Center"
     ], 
   },
   roomNumber: {
@@ -20,3 +29,6 @@ const RoomSchema = new Schema({
 
 const Room = models.Room || model("Room", RoomSchema);
 export default Room;
+
+
+//models/Rooms.ts
