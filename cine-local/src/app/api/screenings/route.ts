@@ -16,7 +16,7 @@ export async function POST(request: Request) {
   const room = await Room.findById(roomId);
   if (!room) return NextResponse.json({ error: "Room not found" }, { status: 404 });
 
-  const tmdbRes = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${process.env.TMDB_API_KEY}`);
+  const tmdbRes = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${process.env.NEXT_PUBLIC_TMDB_API_KEY}`);
   const movieData = await tmdbRes.json();
   const durationMinutes = movieData.runtime || 120; 
 
@@ -56,7 +56,8 @@ export async function GET(request: Request) {
     const movieId = searchParams.get("movieId");
     const hostId = searchParams.get("hostId");
   
-    let query: any = { startTime: { $gte: new Date() } };
+    // DEBUG: Removed the date filter temporarily to show ALL hostings
+    let query: any = {}; 
 
     if (movieId) {
       query.movieId = movieId;
@@ -66,10 +67,14 @@ export async function GET(request: Request) {
       query.host = hostId;
     }
 
+    console.log("Fetching screenings with query:", query);
+
     const screenings = await Screening.find(query)
       .populate("room")
       .populate("host", "username")
       .sort({ startTime: 1 });
       
+    console.log(`Found ${screenings.length} screenings`);
+
     return NextResponse.json(screenings);
 }

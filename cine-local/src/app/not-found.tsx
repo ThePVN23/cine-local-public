@@ -27,7 +27,7 @@ export default function NotFound() {
       </p>
 
       <Link
-        href="browse/"
+        href="/browse"
         style={{
           padding: "0.75rem 1.25rem",
           backgroundColor: "#1f2937",

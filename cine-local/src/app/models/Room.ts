@@ -4,7 +4,9 @@ const RoomSchema = new Schema({
   building: {
     type: String,
     required: true,
-    enum: ["MLC", "Boyd", "Main Library", "Brumby Hall", "Russell Hall", "Creswell Hall"], 
+    enum: [
+      ""
+    ], 
   },
   roomNumber: {
     type: String,

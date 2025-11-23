@@ -3,7 +3,6 @@ import NextAuth, {
   type NextAuthOptions,
 } from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
-// FIX: Use bcryptjs instead of bcrypt for Edge compatibility
 import bcrypt from "bcryptjs";
 
 import { authConfig } from "./auth.config";
