@@ -45,8 +45,8 @@ export default function Header() {
             {
               headers: {
                 accept: "application/json",
-                Authorization:
-                  "Bearer eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlY2QyZTVkYzE0OGRmZDBkOTcxOTU0ZDhmMTU1NjM3NiIsIm5iZiI6MTY5NjI1NjUxMi44MjgsInN1YiI6IjY1MWFkMjAwMjIzYThiMDBlMWZhYTgzZCIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.f9vm8QNqNiFkDjF_2V5-457fhLsE6j5jAGZNslC_LcQ",
+                // FIX: Use the secure environment variable instead of the hardcoded token
+                Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_KEY}`,
               },
             }
           );
@@ -161,6 +161,7 @@ export default function Header() {
                   Host
                 </button>
               </Link>
+              
 
               <Link href="/my-reviews">
                 <button
@@ -259,7 +260,7 @@ export default function Header() {
           margin: "0 auto",
           padding: "0 2rem",
         }}
-        ref={wrapperRef}
+        
       >
         <div style={{ position: "relative", width: "100%" }}>
           <input
