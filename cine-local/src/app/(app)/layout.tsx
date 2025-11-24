@@ -1,4 +1,3 @@
-
 import { ReactNode } from "react";
 import { auth } from "@/auth";
 import Header from "../components/Header";

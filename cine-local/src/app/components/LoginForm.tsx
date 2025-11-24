@@ -25,11 +25,10 @@ const LoginForm = () => {
     }
 
     try {
-      // 🔹 This talks to /api/auth/[...nextauth] and sets the JWT cookie
       const res = await signIn("credentials", {
         email,
         password,
-        redirect: false, // we’ll handle navigation manually
+        redirect: false, 
       });
 
       if (res?.error) {
@@ -38,9 +37,8 @@ const LoginForm = () => {
         return;
       }
 
-      // ✅ Session cookie is now set. Trigger a new server render.
       router.push("/browse");
-      router.refresh(); // make sure server components re-run auth()
+      router.refresh(); 
     } catch (err) {
       console.error(err);
       setError("Failed to connect to the server.");

@@ -3,8 +3,6 @@ import bcrypt from 'bcryptjs';
 import User from '../../models/User';
 import dbConnect from '../../../../config/mongodb';
 
-
-
 export async function POST(req: Request) {
   try {
     const body = await req.json();

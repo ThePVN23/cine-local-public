@@ -56,7 +56,6 @@ export async function GET(request: Request) {
     const movieId = searchParams.get("movieId");
     const hostId = searchParams.get("hostId");
   
-    // DEBUG: Removed the date filter temporarily to show ALL hostings
     let query: any = {}; 
 
     if (movieId) {

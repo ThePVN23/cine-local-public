@@ -6,7 +6,7 @@ import MovieDetailClient from "../../../components/MovieDetailClient";
 
 export default function MovieDetailPage() {
   const params = useParams();
-  const id = params.id; // <-- now you have your movie ID
+  const id = params.id;
 
   const { data: session, status } = useSession();
 

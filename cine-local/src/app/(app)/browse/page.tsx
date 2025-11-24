@@ -1,6 +1,6 @@
 "use client";
 
-import { useSession } from "next-auth/react"; // or "@auth/nextjs" depending on setup
+import { useSession } from "next-auth/react"; 
 import BrowseClient from "../../components/BrowseClient";
 
 export default function BrowsePage() {

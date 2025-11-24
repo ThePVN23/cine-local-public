@@ -142,7 +142,6 @@ export default function MovieDetailClient({ movieId, user }: Props) {
         );
         if (found) setWatchlistMongoId(found.id.toString());
       } else {
-        // FIX: Safely handle non-JSON error responses (like 500 server crashes)
         const text = await res.text();
         try {
           const data = JSON.parse(text);

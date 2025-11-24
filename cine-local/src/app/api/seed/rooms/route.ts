@@ -1,16 +1,12 @@
 import { NextResponse } from "next/server";
-// Go up 5 levels to reach root for config: rooms -> seed -> api -> app -> src -> ROOT
 import connectMongoDB from "../../../../../config/mongodb";
-// Go up 3 levels to reach models: rooms -> seed -> api -> app -> models
 import Room from "../../../models/Room";
 
 export async function GET() {
   try {
     await connectMongoDB();
 
-    // Data parsed from First_Come_First_Serve.txt
     const rooms = [
-      // Zell B. Miller Learning Center
       { building: "Zell B. Miller Learning Center", roomNumber: "201", maxOccupancy: 6 },
       { building: "Zell B. Miller Learning Center", roomNumber: "202", maxOccupancy: 6 },
       { building: "Zell B. Miller Learning Center", roomNumber: "203", maxOccupancy: 6 },
@@ -104,7 +100,6 @@ export async function GET() {
       { building: "Zell B. Miller Learning Center", roomNumber: "486", maxOccupancy: 8 },
       { building: "Zell B. Miller Learning Center", roomNumber: "487", maxOccupancy: 8 },
 
-      // Shirley Mathis McBay Science Library
       { building: "Shirley Mathis McBay Science Library", roomNumber: "441A", maxOccupancy: 3 },
       { building: "Shirley Mathis McBay Science Library", roomNumber: "441B", maxOccupancy: 3 },
       { building: "Shirley Mathis McBay Science Library", roomNumber: "441C", maxOccupancy: 3 },
@@ -131,7 +126,6 @@ export async function GET() {
       { building: "Shirley Mathis McBay Science Library", roomNumber: "442M", maxOccupancy: 3 },
       { building: "Shirley Mathis McBay Science Library", roomNumber: "442N", maxOccupancy: 3 },
 
-      // Main Library
       { building: "Main Library", roomNumber: "132", maxOccupancy: 4 },
       { building: "Main Library", roomNumber: "133", maxOccupancy: 4 },
       { building: "Main Library", roomNumber: "134", maxOccupancy: 4 },
@@ -161,7 +155,6 @@ export async function GET() {
       { building: "Main Library", roomNumber: "186", maxOccupancy: 4 },
       { building: "Main Library", roomNumber: "187", maxOccupancy: 4 },
 
-      // Russell Hall
       { building: "Russell Hall", roomNumber: "Floor 1 TV Lounge", maxOccupancy: 10 },
       { building: "Russell Hall", roomNumber: "Floor 2 TV Lounge", maxOccupancy: 10 },
       { building: "Russell Hall", roomNumber: "Floor 3 TV Lounge", maxOccupancy: 10 },
@@ -173,7 +166,6 @@ export async function GET() {
       { building: "Russell Hall", roomNumber: "Floor 9 TV Lounge", maxOccupancy: 10 },
       { building: "Russell Hall", roomNumber: "Floor 10 TV Lounge", maxOccupancy: 10 },
 
-      // Brumby Hall
       { building: "Brumby Hall", roomNumber: "Floor 1 TV Lounge", maxOccupancy: 10 },
       { building: "Brumby Hall", roomNumber: "Floor 2 TV Lounge", maxOccupancy: 10 },
       { building: "Brumby Hall", roomNumber: "Floor 3 TV Lounge", maxOccupancy: 10 },
@@ -184,7 +176,6 @@ export async function GET() {
       { building: "Brumby Hall", roomNumber: "Floor 8 TV Lounge", maxOccupancy: 10 },
       { building: "Brumby Hall", roomNumber: "Floor 9 TV Lounge", maxOccupancy: 10 },
 
-      // Creswell Hall
       { building: "Creswell Hall", roomNumber: "Floor 1 TV Lounge", maxOccupancy: 10 },
       { building: "Creswell Hall", roomNumber: "Floor 2 TV Lounge", maxOccupancy: 10 },
       { building: "Creswell Hall", roomNumber: "Floor 3 TV Lounge", maxOccupancy: 10 },
@@ -195,7 +186,6 @@ export async function GET() {
       { building: "Creswell Hall", roomNumber: "Floor 8 TV Lounge", maxOccupancy: 10 },
       { building: "Creswell Hall", roomNumber: "Floor 9 TV Lounge", maxOccupancy: 10 },
 
-      // Black-Diallo-Miller Hall
       { building: "Black-Diallo-Miller Hall", roomNumber: "Floor 1 TV Lounge", maxOccupancy: 10 },
       { building: "Black-Diallo-Miller Hall", roomNumber: "Floor 2 TV Lounge", maxOccupancy: 10 },
       { building: "Black-Diallo-Miller Hall", roomNumber: "Floor 3 TV Lounge", maxOccupancy: 10 },
@@ -203,7 +193,6 @@ export async function GET() {
       { building: "Black-Diallo-Miller Hall", roomNumber: "Floor 5 TV Lounge", maxOccupancy: 10 },
       { building: "Black-Diallo-Miller Hall", roomNumber: "Floor 6 TV Lounge", maxOccupancy: 10 },
 
-      // Building 1516
       { building: "Building 1516", roomNumber: "Floor 1 TV Lounge", maxOccupancy: 10 },
       { building: "Building 1516", roomNumber: "Floor 2 TV Lounge", maxOccupancy: 10 },
       { building: "Building 1516", roomNumber: "Floor 3 TV Lounge", maxOccupancy: 10 },

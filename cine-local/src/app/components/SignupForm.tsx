@@ -34,7 +34,6 @@ const SignupForm = () => {
         return;
       }
 
-      // success → send to login
       router.push("/login");
     } catch (err) {
       console.error(err);

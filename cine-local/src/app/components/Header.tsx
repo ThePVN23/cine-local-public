@@ -45,7 +45,6 @@ export default function Header() {
             {
               headers: {
                 accept: "application/json",
-                // FIX: Use the secure environment variable instead of the hardcoded token
                 Authorization: `Bearer ${process.env.NEXT_PUBLIC_TMDB_API_KEY}`,
               },
             }

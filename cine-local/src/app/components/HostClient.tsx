@@ -1,4 +1,3 @@
-// src/app/host/HostClient.tsx
 "use client";
 
 import { useState, useEffect } from "react";

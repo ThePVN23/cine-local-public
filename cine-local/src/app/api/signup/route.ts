@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-// FIX: Use bcryptjs to match your installed package
 import bcrypt from "bcryptjs"; 
 import dbConnect from '../../../../config/mongodb';
 import User from "../../models/User";
@@ -16,7 +15,6 @@ export async function POST(request: Request) {
 
   await dbConnect();
 
-  // Check for existing email
   const existingEmail = await User.findOne({ email }).lean();
   if (existingEmail) {
     return NextResponse.json(
@@ -25,7 +23,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // FIX: Check for existing username to prevent 500 Crash
   const existingUsername = await User.findOne({ username }).lean();
   if (existingUsername) {
     return NextResponse.json(
@@ -34,7 +31,6 @@ export async function POST(request: Request) {
     );
   }
 
-  // Hash password
   const hashedPassword = await bcrypt.hash(password, 5);
 
   try {

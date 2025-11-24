@@ -29,6 +29,3 @@ const RoomSchema = new Schema({
 
 const Room = models.Room || model("Room", RoomSchema);
 export default Room;
-
-
-//models/Rooms.ts

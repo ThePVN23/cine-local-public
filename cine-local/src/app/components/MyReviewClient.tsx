@@ -1,4 +1,3 @@
-// src/app/my-reviews/MyReviewsClient.tsx
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
@@ -30,7 +29,6 @@ export default function MyReviewsClient({ user }: MyReviewsClientProps) {
     Record<string, number>
   >({});
 
-  // Redirect to login if no user, otherwise load their reviews
   useEffect(() => {
     if (!user?.id) {
       router.push("/login");

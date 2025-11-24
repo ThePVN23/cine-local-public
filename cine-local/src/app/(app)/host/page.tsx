@@ -26,7 +26,7 @@ type Screening = {
   room: {
     building: string;
     roomNumber: string;
-  } | null; // Allow room to be null to prevent crashes
+  } | null;
   attendees: string[];
   maxAttendees: number;
 };
@@ -34,12 +34,10 @@ type Screening = {
 export default function HostPage() {
   const { data: session } = useSession();
 
-  // Form State
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState<Movie[]>([]);
   const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null);
   
-  // Room State
   const [rooms, setRooms] = useState<Room[]>([]);
   const [buildings, setBuildings] = useState<string[]>([]);
   const [selectedBuilding, setSelectedBuilding] = useState("");
@@ -51,7 +49,6 @@ export default function HostPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // My Hostings State
   const [myHostings, setMyHostings] = useState<Screening[]>([]);
 
   const fetchMyHostings = async () => {
@@ -65,7 +62,6 @@ export default function HostPage() {
     }
   };
 
-  // 1. Fetch Rooms and User's Hostings on Load
   useEffect(() => {
     const fetchRooms = async () => {
       const roomRes = await fetch("/api/rooms");
@@ -81,7 +77,6 @@ export default function HostPage() {
     fetchMyHostings();
   }, [session]);
 
-  // 2. Handle Room Logic
   useEffect(() => {
     if (selectedBuilding) {
       const filtered = rooms.filter(r => r.building === selectedBuilding);
@@ -102,7 +97,6 @@ export default function HostPage() {
     }
   }, [selectedRoomId, rooms]);
 
-  // 3. Movie Search Logic
   useEffect(() => {
     const delayDebounceFn = setTimeout(async () => {
       if (query.length > 2 && !selectedMovie) {
@@ -218,7 +212,6 @@ export default function HostPage() {
     >
       <div style={{ maxWidth: "64rem", margin: "0 auto", padding: "0 1.5rem" }}>
         
-        {/* HOSTING FORM */}
         <h1 style={{ fontSize: "2.5rem", fontWeight: "bold", marginBottom: "2rem", color: "#DC2626", textAlign: "center" }}>
           Host a Screening
         </h1>
@@ -242,7 +235,6 @@ export default function HostPage() {
             </div>
           )}
 
-          {/* MOVIE SEARCH */}
           <div style={{ position: "relative" }}>
             <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>Select Movie</label>
             <input
@@ -278,7 +270,6 @@ export default function HostPage() {
             )}
           </div>
 
-          {/* BUILDING | ROOM | CAPACITY */}
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 0.5fr", gap: "1rem" }}>
             <div>
               <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>Building</label>
@@ -315,7 +306,6 @@ export default function HostPage() {
             </div>
           </div>
 
-          {/* CALENDAR */}
           <div>
             <label style={{ display: "block", marginBottom: "0.5rem", fontWeight: "bold" }}>Date & Time</label>
             <input
@@ -335,7 +325,6 @@ export default function HostPage() {
           </button>
         </form>
 
-        {/* MY HOSTINGS LIST */}
         <h2 style={{ fontSize: "2rem", fontWeight: "bold", marginBottom: "1.5rem", color: "#22c55e", borderBottom: "1px solid #22c55e", paddingBottom: "0.5rem" }}>
           🎥 My Active Hostings
         </h2>
@@ -355,7 +344,6 @@ export default function HostPage() {
                   <div style={{ padding: "1rem", flex: 1 }}>
                     <h3 style={{ fontWeight: "bold", fontSize: "1.1rem", marginBottom: "0.5rem" }}>{screening.movieTitle}</h3>
                     
-                    {/* SAFETY CHECK: Only render if room exists */}
                     {screening.room ? (
                       <p style={{ fontSize: "0.9rem", color: "#9ca3af", marginBottom: "0.25rem" }}>
                         📍 {screening.room.building} {screening.room.roomNumber}
