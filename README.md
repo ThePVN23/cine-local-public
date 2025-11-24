@@ -12,9 +12,9 @@ Our team collaboratively designed, developed, and deployed this full-stack web a
 
 | Member Name      | GitHub Username      | Role          |
 |------------------|----------------------|---------------|
-| Pavan Gadiraju   |                      | Project Leader  |
+| Pavan Gadiraju   | ThePVN23             | Project Leader  |
 | Dev Patel        | pateldev1804         | Project Manager   |
-| Usman Khan       |                      | Communication Leader    |
+| Usman Khan       | Usman Khan           | Communication Leader    |
 |                  |                      | GitHub Captain |
 
 ---
