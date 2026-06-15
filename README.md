@@ -6,6 +6,8 @@
 This repository represents the culminating project for CSCI 4300 – Web Programming at UGA.  
 Our team collaboratively designed, developed, and deployed this full-stack web application using React + Next.js, Node.js and MongoDB. 
 
+view the demo here: https://youtu.be/ZCK2_yMqf74
+
 ---
 
 ## Our Team - Group_Name_Here 
